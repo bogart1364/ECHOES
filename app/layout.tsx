@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import Providers from "@/components/Providers";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import AmbientBackground from "@/components/AmbientBackground";
 import MiniPlayer from "@/components/MiniPlayer";
 import { AudioPlayerProvider } from "@/lib/AudioPlayerContext";
@@ -26,7 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AudioPlayerProvider>
               <AmbientBackground />
               <Nav />
-              <div className="pb-28">{children}</div>
+              <div className="pb-28">
+                {children}
+                <Footer />
+              </div>
               <MiniPlayer />
             </AudioPlayerProvider>
           </ToastProvider>

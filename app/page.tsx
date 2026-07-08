@@ -43,10 +43,6 @@ export default async function HomePage() {
         </div>
         <StoryGrid stories={stories} />
       </section>
-
-      <footer className="px-4 sm:px-6 md:px-12 py-14 border-t border-line text-center text-muted text-sm">
-        Echoes — built for the Superteam front-end listing
-      </footer>
     </main>
   );
 }
