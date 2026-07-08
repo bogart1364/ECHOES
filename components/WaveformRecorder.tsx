@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { buildStoryMintTransaction } from "@/lib/solana";
-import { uploadAudioToArweave } from "@/lib/irys";
+import { uploadAudioToArweave, uploadImageToArweave } from "@/lib/irys";
 import { describeWalletError, FriendlyError } from "@/lib/walletErrors";
 import { useToast } from "@/lib/ToastContext";
 
@@ -14,6 +14,8 @@ export default function WaveformRecorder() {
   const [seconds, setSeconds] = useState(0);
   const [levels, setLevels] = useState<number[]>(Array(40).fill(6));
   const [title, setTitle] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [friendlyError, setFriendlyError] = useState<FriendlyError | null>(null);
   const [resultUri, setResultUri] = useState<string | null>(null);
   const [txSig, setTxSig] = useState<string | null>(null);
@@ -121,6 +123,13 @@ export default function WaveformRecorder() {
     }
   }
 
+  function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  }
+
   async function publish() {
     if (!recordedBlobRef.current) return;
     if (!wallet.publicKey || !wallet.signTransaction || !wallet.sendTransaction) {
@@ -143,10 +152,16 @@ export default function WaveformRecorder() {
       const arweaveUri = await uploadAudioToArweave(recordedBlobRef.current, wallet);
       setResultUri(arweaveUri);
 
+      let imageUri: string | undefined;
+      if (coverFile) {
+        imageUri = await uploadImageToArweave(coverFile, wallet);
+      }
+
       const tx = await buildStoryMintTransaction(connection, wallet.publicKey, {
         type: "echoes.story.mint",
         title,
         arweaveUri,
+        imageUri,
         durationSeconds: seconds,
         createdAt: new Date().toISOString(),
       });
@@ -162,6 +177,7 @@ export default function WaveformRecorder() {
           authorHandle: wallet.publicKey.toBase58().slice(0, 4) + ".sol",
           authorWallet: wallet.publicKey.toBase58(),
           arweaveUri,
+          imageUri,
           mintTxSignature: signature,
           durationSeconds: seconds,
         }),
@@ -222,6 +238,24 @@ export default function WaveformRecorder() {
             disabled={stage !== "review"}
             className="w-full bg-ink/50 border border-line rounded-lg px-4 py-3 text-sm text-bone placeholder:text-muted outline-none"
           />
+
+          {stage === "review" && (
+            <div className="flex items-center gap-4">
+              <label className="w-16 h-16 rounded-xl border border-dashed border-line flex-shrink-0 flex items-center justify-center cursor-pointer overflow-hidden bg-ink/40">
+                {coverPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-muted text-xs text-center px-1">+ Cover</span>
+                )}
+                <input type="file" accept="image/*" onChange={handleCoverChange} className="hidden" />
+              </label>
+              <p className="text-xs text-muted leading-relaxed">
+                Optional cover art — shown on the story card and player. Stored on Arweave
+                alongside the audio.
+              </p>
+            </div>
+          )}
 
           {stage === "review" && (
             <div className="flex flex-col sm:flex-row gap-3">

@@ -4,6 +4,7 @@ export interface Story {
   authorHandle: string;
   authorWallet: string;
   arweaveUri: string; // permanent audio location
+  imageUri?: string; // permanent cover art location, optional
   mintTxSignature: string; // devnet memo tx that anchors the mint
   durationSeconds: number;
   createdAt: string;

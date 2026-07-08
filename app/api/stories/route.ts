@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     authorHandle: body.authorHandle,
     authorWallet: body.authorWallet,
     arweaveUri: body.arweaveUri,
+    imageUri: body.imageUri || undefined,
     mintTxSignature: body.mintTxSignature,
     durationSeconds: body.durationSeconds ?? 0,
     createdAt: new Date().toISOString(),

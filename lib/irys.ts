@@ -9,10 +9,7 @@
 
 import type { WalletContextState } from "@solana/wallet-adapter-react";
 
-export async function uploadAudioToArweave(
-  audioBlob: Blob,
-  wallet: WalletContextState
-): Promise<string> {
+export async function uploadToArweave(blob: Blob, wallet: WalletContextState): Promise<string> {
   if (!wallet.publicKey || !wallet.signTransaction) {
     throw new Error("Connect a wallet before publishing.");
   }
@@ -27,15 +24,20 @@ export async function uploadAudioToArweave(
 
   await irys.ready();
 
-  const buffer = Buffer.from(await audioBlob.arrayBuffer());
+  const buffer = Buffer.from(await blob.arrayBuffer());
 
   // Fund just enough for this upload. On devnet this is effectively free.
   const price = await irys.getPrice(buffer.length);
   await irys.fund(price);
 
   const receipt = await irys.upload(buffer, {
-    tags: [{ name: "Content-Type", value: audioBlob.type || "audio/webm" }],
+    tags: [{ name: "Content-Type", value: blob.type || "application/octet-stream" }],
   });
 
   return `https://gateway.irys.xyz/${receipt.id}`;
 }
+
+// Kept as a thin alias — existing callers referring to "audio" specifically
+// still read clearly, but both go through the same generic uploader above.
+export const uploadAudioToArweave = uploadToArweave;
+export const uploadImageToArweave = uploadToArweave;

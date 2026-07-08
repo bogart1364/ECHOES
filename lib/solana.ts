@@ -16,6 +16,7 @@ export interface StoryMintMemo {
   type: "echoes.story.mint";
   title: string;
   arweaveUri: string;
+  imageUri?: string;
   durationSeconds: number;
   createdAt: string;
 }

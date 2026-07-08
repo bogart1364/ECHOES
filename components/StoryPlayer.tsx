@@ -15,7 +15,16 @@ export default function StoryPlayer({ story }: { story: Story }) {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-4">
+      {story.imageUri && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={story.imageUri}
+          alt=""
+          className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+        />
+      )}
+      <div className="flex items-center gap-3">
       <button
         onClick={() =>
           toggle({ id: story.id, title: story.title, authorHandle: story.authorHandle, src: story.arweaveUri })
@@ -30,6 +39,7 @@ export default function StoryPlayer({ story }: { story: Story }) {
       >
         Share
       </button>
+      </div>
     </div>
   );
 }

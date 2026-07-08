@@ -45,6 +45,9 @@ export default function Nav() {
           <Link href="/record" className="text-sm text-muted hover:text-bone transition">
             Record
           </Link>
+          <Link href="/profile" className="text-sm text-muted hover:text-bone transition">
+            Profile
+          </Link>
 
           {authenticated ? (
             <button
@@ -96,6 +99,9 @@ export default function Nav() {
           </Link>
           <Link href="/record" className="text-sm text-muted" onClick={() => setMenuOpen(false)}>
             Record
+          </Link>
+          <Link href="/profile" className="text-sm text-muted" onClick={() => setMenuOpen(false)}>
+            Profile
           </Link>
           {authenticated ? (
             <button onClick={logout} className="text-sm text-left text-muted">

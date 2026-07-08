@@ -21,7 +21,16 @@ export default function StoryCard({ story }: { story: Story }) {
       className="glass rounded-2xl p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block"
     >
       <div className="flex justify-between items-start mb-5">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber to-violet flex-shrink-0" />
+        {story.imageUri ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={story.imageUri}
+            alt=""
+            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber to-violet flex-shrink-0" />
+        )}
         <button
           onClick={handlePlay}
           className="w-9 h-9 rounded-full bg-ink/70 border border-line flex items-center justify-center flex-shrink-0"
