@@ -3,7 +3,7 @@
 import { useAudioPlayer } from "@/lib/AudioPlayerContext";
 
 export default function MiniPlayer() {
-  const { current, isPlaying, progress, toggle, seek } = useAudioPlayer();
+  const { current, isPlaying, progress, toggle, seek, close } = useAudioPlayer();
 
   if (!current) return null;
 
@@ -44,6 +44,14 @@ export default function MiniPlayer() {
             <div className="h-full bg-amber rounded-full" style={{ width: `${progress * 100}%` }} />
           </div>
         </div>
+
+        <button
+          onClick={close}
+          aria-label="Close player"
+          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-muted hover:text-bone hover:bg-ink/40 transition"
+        >
+          ✕
+        </button>
       </div>
     </div>
   );

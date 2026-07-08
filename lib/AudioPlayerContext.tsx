@@ -17,6 +17,7 @@ interface AudioPlayerContextValue {
   toggle: (story: NowPlaying) => void;
   pause: () => void;
   seek: (fraction: number) => void;
+  close: () => void;
 }
 
 const AudioPlayerContext = createContext<AudioPlayerContextValue | null>(null);
@@ -75,9 +76,22 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     }
   }, []);
 
+  const close = useCallback(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.removeAttribute("src");
+      audio.load();
+    }
+    setIsPlaying(false);
+    setProgress(0);
+    setCurrent(null);
+  }, []);
+
   const value = useMemo(
-    () => ({ current, isPlaying, progress, play, toggle, pause, seek }),
-    [current, isPlaying, progress, play, toggle, pause, seek]
+    () => ({ current, isPlaying, progress, play, toggle, pause, seek, close }),
+    [current, isPlaying, progress, play, toggle, pause, seek, close]
   );
 
   return <AudioPlayerContext.Provider value={value}>{children}</AudioPlayerContext.Provider>;
