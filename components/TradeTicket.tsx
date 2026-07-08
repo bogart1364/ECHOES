@@ -3,21 +3,21 @@
 import { useState } from "react";
 import { Story } from "@/types/story";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useToast } from "@/lib/ToastContext";
 
 export default function TradeTicket({ initial }: { initial: Story }) {
   const [story, setStory] = useState(initial);
   const [amount, setAmount] = useState(2);
   const [loading, setLoading] = useState<"buy" | "sell" | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const { connected } = useWallet();
+  const { push } = useToast();
 
   async function trade(side: "buy" | "sell") {
     if (!connected) {
-      setError("Connect a wallet to trade.");
+      push("Connect a wallet to trade.", "error");
       return;
     }
     setLoading(side);
-    setError(null);
     try {
       const res = await fetch("/api/tokenize", {
         method: "POST",
@@ -27,8 +27,9 @@ export default function TradeTicket({ initial }: { initial: Story }) {
       if (!res.ok) throw new Error((await res.json()).error);
       const updated = await res.json();
       setStory(updated);
+      push(side === "buy" ? `Bought ~${(amount / story.priceUsd).toFixed(2)} tokens` : "Sold", "success");
     } catch (err) {
-      setError((err as Error).message);
+      push((err as Error).message, "error");
     } finally {
       setLoading(null);
     }
@@ -38,10 +39,10 @@ export default function TradeTicket({ initial }: { initial: Story }) {
   const up = story.change24h >= 0;
 
   return (
-    <div className="bg-card border border-line rounded-2xl p-9 grid md:grid-cols-[1.3fr_1fr] gap-9">
+    <div className="glass rounded-2xl p-6 sm:p-9 grid md:grid-cols-[1.3fr_1fr] gap-7 md:gap-9">
       <div>
         <div className="text-xs text-muted uppercase tracking-wide mb-1">{story.title}</div>
-        <div className={`font-mono text-3xl mb-4 ${up ? "text-green" : "text-[#E85D4D]"}`}>
+        <div className={`font-mono text-2xl sm:text-3xl mb-4 ${up ? "text-green" : "text-[#E85D4D]"}`}>
           {up ? "+" : ""}
           {story.change24h.toFixed(1)}%
         </div>
@@ -53,7 +54,7 @@ export default function TradeTicket({ initial }: { initial: Story }) {
 
       <div>
         <h4 className="text-xs text-muted uppercase tracking-wide mb-4">Swap</h4>
-        <div className="bg-ink border border-line rounded-xl p-4 space-y-3">
+        <div className="bg-ink/50 border border-line rounded-xl p-4 space-y-3">
           <label className="flex justify-between font-mono text-xs text-muted">
             <span>You pay</span>
             <input
@@ -86,7 +87,6 @@ export default function TradeTicket({ initial }: { initial: Story }) {
             </button>
           </div>
         </div>
-        {error && <p className="text-xs text-[#E85D4D] mt-3">{error}</p>}
         <p className="text-[11px] text-muted mt-3 leading-relaxed">
           Simulated market for demo purposes — production trading settles against the team's
           on-chain bonding-curve program.

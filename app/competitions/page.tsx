@@ -23,12 +23,12 @@ const competitions: Competition[] = [
 
 export default function CompetitionsPage() {
   return (
-    <main className="px-12 py-20 max-w-5xl mx-auto">
-      <div className="max-w-xl mb-11">
+    <main className="px-4 sm:px-6 md:px-12 py-16 sm:py-20 max-w-5xl mx-auto">
+      <div className="max-w-xl mb-9">
         <span className="font-mono text-xs uppercase tracking-wide text-amber block mb-3">
           Competitions
         </span>
-        <h1 className="font-display text-3xl mb-3">Sponsored storytelling</h1>
+        <h1 className="font-display text-2xl sm:text-3xl mb-3">Sponsored storytelling</h1>
         <p className="text-muted text-[15px] leading-relaxed">
           Brands and communities fund prizes for stories in a theme. Publish yours, tag the
           competition, and the leaderboard tracks itself.

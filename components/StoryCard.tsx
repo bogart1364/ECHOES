@@ -1,23 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
 import { Story } from "@/types/story";
+import { useAudioPlayer } from "@/lib/AudioPlayerContext";
 
 export default function StoryCard({ story }: { story: Story }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [playing, setPlaying] = useState(false);
+  const { current, isPlaying, toggle } = useAudioPlayer();
+  const isThisPlaying = current?.id === story.id && isPlaying;
 
-  function togglePlay(e: React.MouseEvent) {
+  function handlePlay(e: React.MouseEvent) {
     e.preventDefault();
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (playing) {
-      audio.pause();
-    } else {
-      audio.play().catch(() => {});
-    }
-    setPlaying(!playing);
+    toggle({ id: story.id, title: story.title, authorHandle: story.authorHandle, src: story.arweaveUri });
   }
 
   const up = story.change24h >= 0;
@@ -25,19 +18,27 @@ export default function StoryCard({ story }: { story: Story }) {
   return (
     <Link
       href={`/story/${story.id}`}
-      className="block bg-card border border-line rounded-2xl p-6 hover:bg-cardHover hover:-translate-y-1 transition"
+      className="glass rounded-2xl p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block"
     >
       <div className="flex justify-between items-start mb-5">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber to-violet" />
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber to-violet flex-shrink-0" />
         <button
-          onClick={togglePlay}
-          className="w-9 h-9 rounded-full bg-ink border border-line flex items-center justify-center flex-shrink-0"
+          onClick={handlePlay}
+          className="w-9 h-9 rounded-full bg-ink/70 border border-line flex items-center justify-center flex-shrink-0"
+          aria-label={isThisPlaying ? "Pause" : "Play"}
         >
-          {playing ? "❚❚" : "▶"}
+          {isThisPlaying ? (
+            <div className="flex items-end gap-[2px] h-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="eq-bar w-[2.5px] bg-amber rounded-full" style={{ animationDelay: `${i * 0.15}s` }} />
+              ))}
+            </div>
+          ) : (
+            "▶"
+          )}
         </button>
-        <audio ref={audioRef} src={story.arweaveUri} onEnded={() => setPlaying(false)} />
       </div>
-      <h3 className="font-display text-lg mb-1">{story.title}</h3>
+      <h3 className="font-display text-lg mb-1 truncate">{story.title}</h3>
       <p className="text-xs text-muted mb-4">by {story.authorHandle}</p>
       <div className="flex justify-between items-center pt-3 border-t border-line">
         <span className={`font-mono text-sm ${up ? "text-green" : "text-[#E85D4D]"}`}>

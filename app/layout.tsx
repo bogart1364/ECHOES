@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import Providers from "@/components/Providers";
 import Nav from "@/components/Nav";
+import AmbientBackground from "@/components/AmbientBackground";
+import MiniPlayer from "@/components/MiniPlayer";
+import { AudioPlayerProvider } from "@/lib/AudioPlayerContext";
+import { ToastProvider } from "@/lib/ToastContext";
 import "./globals.css";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", weight: ["300", "500", "600"] });
@@ -18,8 +22,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${fraunces.variable} ${inter.variable} ${mono.variable}`}>
       <body className="font-body">
         <Providers>
-          <Nav />
-          {children}
+          <ToastProvider>
+            <AudioPlayerProvider>
+              <AmbientBackground />
+              <Nav />
+              <div className="pb-28">{children}</div>
+              <MiniPlayer />
+            </AudioPlayerProvider>
+          </ToastProvider>
         </Providers>
       </body>
     </html>

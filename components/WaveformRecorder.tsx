@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { buildStoryMintTransaction } from "@/lib/solana";
 import { uploadAudioToArweave } from "@/lib/irys";
+import { describeWalletError, FriendlyError } from "@/lib/walletErrors";
+import { useToast } from "@/lib/ToastContext";
 
 type Stage = "idle" | "recording" | "review" | "cleaning" | "publishing" | "done" | "error";
 
@@ -12,7 +14,7 @@ export default function WaveformRecorder() {
   const [seconds, setSeconds] = useState(0);
   const [levels, setLevels] = useState<number[]>(Array(40).fill(6));
   const [title, setTitle] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [friendlyError, setFriendlyError] = useState<FriendlyError | null>(null);
   const [resultUri, setResultUri] = useState<string | null>(null);
   const [txSig, setTxSig] = useState<string | null>(null);
 
@@ -25,6 +27,7 @@ export default function WaveformRecorder() {
 
   const wallet = useWallet();
   const { connection } = useConnection();
+  const { push } = useToast();
 
   useEffect(() => {
     return () => {
@@ -34,7 +37,7 @@ export default function WaveformRecorder() {
   }, []);
 
   async function startRecording() {
-    setError(null);
+    setFriendlyError(null);
     setResultUri(null);
     setTxSig(null);
 
@@ -65,9 +68,11 @@ export default function WaveformRecorder() {
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
       animateLevels();
     } catch (err) {
-      setError(
-        "Couldn't access the microphone. Check your browser's permission prompt and try again."
-      );
+      setFriendlyError({
+        title: "Couldn't access your microphone",
+        steps: ["Check your browser's permission prompt (usually in the address bar) and allow microphone access, then try again."],
+        faucetHint: false,
+      });
       setStage("error");
     }
   }
@@ -97,7 +102,7 @@ export default function WaveformRecorder() {
   async function cleanupWithElevenLabs() {
     if (!recordedBlobRef.current) return;
     setStage("cleaning");
-    setError(null);
+    setFriendlyError(null);
     try {
       const form = new FormData();
       form.append("audio", recordedBlobRef.current, "recording.webm");
@@ -108,9 +113,10 @@ export default function WaveformRecorder() {
       }
       const cleaned = await res.blob();
       recordedBlobRef.current = cleaned;
+      push("Cleaned up with ElevenLabs.", "success");
       setStage("review");
     } catch (err) {
-      setError((err as Error).message);
+      setFriendlyError(describeWalletError((err as Error).message));
       setStage("review");
     }
   }
@@ -118,23 +124,25 @@ export default function WaveformRecorder() {
   async function publish() {
     if (!recordedBlobRef.current) return;
     if (!wallet.publicKey || !wallet.signTransaction || !wallet.sendTransaction) {
-      setError("Connect a Solana wallet first — top right.");
+      setFriendlyError({
+        title: "Connect a wallet first",
+        steps: ["Use the wallet button in the top right, then try publishing again."],
+        faucetHint: false,
+      });
       return;
     }
     if (!title.trim()) {
-      setError("Give your story a title first.");
+      setFriendlyError({ title: "Give your story a title", steps: ["Titles help listeners find it."], faucetHint: false });
       return;
     }
 
     setStage("publishing");
-    setError(null);
+    setFriendlyError(null);
 
     try {
-      // 1. Permanent storage — Arweave via Irys, funded/signed by the listener's wallet.
       const arweaveUri = await uploadAudioToArweave(recordedBlobRef.current, wallet);
       setResultUri(arweaveUri);
 
-      // 2. Anchor it on-chain — a Memo transaction the wallet signs itself.
       const tx = await buildStoryMintTransaction(connection, wallet.publicKey, {
         type: "echoes.story.mint",
         title,
@@ -146,7 +154,6 @@ export default function WaveformRecorder() {
       await connection.confirmTransaction(signature, "confirmed");
       setTxSig(signature);
 
-      // 3. Register it in the marketplace.
       await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -160,15 +167,16 @@ export default function WaveformRecorder() {
         }),
       });
 
+      push("Published! Your story is live.", "success");
       setStage("done");
     } catch (err) {
-      setError((err as Error).message);
+      setFriendlyError(describeWalletError((err as Error).message));
       setStage("review");
     }
   }
 
   return (
-    <div className="bg-card border border-line rounded-2xl p-9 max-w-xl">
+    <div className="glass rounded-2xl p-6 sm:p-9 max-w-xl">
       {stage === "idle" && (
         <button
           onClick={startRecording}
@@ -187,11 +195,11 @@ export default function WaveformRecorder() {
               {String(seconds % 60).padStart(2, "0")} — recording
             </span>
           </div>
-          <div className="flex items-end gap-[3px] h-16 mb-6">
+          <div className="flex items-end gap-[3px] h-16 mb-6 overflow-hidden">
             {levels.map((h, i) => (
               <div
                 key={i}
-                className="w-1 bg-gradient-to-t from-amber to-violet rounded"
+                className="w-1 bg-gradient-to-t from-amber to-violet rounded flex-shrink-0"
                 style={{ height: `${h}px` }}
               />
             ))}
@@ -212,14 +220,14 @@ export default function WaveformRecorder() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title your story"
             disabled={stage !== "review"}
-            className="w-full bg-ink border border-line rounded-lg px-4 py-3 text-sm text-bone placeholder:text-muted outline-none"
+            className="w-full bg-ink/50 border border-line rounded-lg px-4 py-3 text-sm text-bone placeholder:text-muted outline-none"
           />
 
           {stage === "review" && (
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={cleanupWithElevenLabs}
-                className="flex-1 border border-line rounded-xl py-3 text-sm text-bone hover:bg-cardHover transition"
+                className="flex-1 border border-line rounded-xl py-3 text-sm text-bone hover:bg-cardHover/60 transition"
               >
                 Clean up with AI (ElevenLabs)
               </button>
@@ -269,7 +277,29 @@ export default function WaveformRecorder() {
         </div>
       )}
 
-      {error && <p className="text-sm text-[#E85D4D] mt-4">{error}</p>}
+      {friendlyError && (
+        <div className="mt-5 bg-[#E85D4D]/10 border border-[#E85D4D]/30 rounded-xl p-4">
+          <p className="text-sm text-[#E85D4D] font-medium mb-2">{friendlyError.title}</p>
+          <ul className="space-y-1">
+            {friendlyError.steps.map((s, i) => (
+              <li key={i} className="text-xs text-muted leading-relaxed">
+                {s}
+              </li>
+            ))}
+          </ul>
+          {friendlyError.faucetHint && (
+            <a
+              href="https://faucet.solana.com"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs underline text-bone mt-2 inline-block"
+            >
+              Get free devnet SOL →
+            </a>
+          )}
+        </div>
+      )}
+
       {stage === "error" && (
         <button onClick={() => setStage("idle")} className="text-sm underline text-muted mt-3">
           Try again
