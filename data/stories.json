@@ -1,0 +1,47 @@
+[
+  {
+    "id": "night-shift-lagos",
+    "title": "Night Shift, Lagos",
+    "authorHandle": "amara.sol",
+    "authorWallet": "8f2c...G3kP",
+    "arweaveUri": "https://gateway.irys.xyz/placeholder-tx-1",
+    "mintTxSignature": "3xJ9...devnet1",
+    "durationSeconds": 184,
+    "createdAt": "2026-06-20T10:00:00.000Z",
+    "priceUsd": 0.084,
+    "change24h": 12.4,
+    "holders": 213,
+    "volume24hUsd": 4120,
+    "marketCapUsd": 18900
+  },
+  {
+    "id": "letters-to-my-father",
+    "title": "Letters to My Father",
+    "authorHandle": "devan.sol",
+    "authorWallet": "9a1b...H7mQ",
+    "arweaveUri": "https://gateway.irys.xyz/placeholder-tx-2",
+    "mintTxSignature": "7yK2...devnet2",
+    "durationSeconds": 312,
+    "createdAt": "2026-06-18T14:30:00.000Z",
+    "priceUsd": 0.231,
+    "change24h": 4.1,
+    "holders": 560,
+    "volume24hUsd": 9800,
+    "marketCapUsd": 51200
+  },
+  {
+    "id": "last-train-home",
+    "title": "The Last Train Home",
+    "authorHandle": "mireille.sol",
+    "authorWallet": "5cQ8...K2vN",
+    "arweaveUri": "https://gateway.irys.xyz/placeholder-tx-3",
+    "mintTxSignature": "1pL4...devnet3",
+    "durationSeconds": 227,
+    "createdAt": "2026-06-25T09:15:00.000Z",
+    "priceUsd": 0.056,
+    "change24h": 29.2,
+    "holders": 98,
+    "volume24hUsd": 1650,
+    "marketCapUsd": 7300
+  }
+]
