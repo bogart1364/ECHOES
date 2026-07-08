@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Story } from "@/types/story";
 import { useAudioPlayer } from "@/lib/AudioPlayerContext";
+import { PlayIcon, PauseIcon } from "./Icons";
 
 export default function StoryCard({ story }: { story: Story }) {
   const { current, isPlaying, toggle } = useAudioPlayer();
@@ -43,7 +44,7 @@ export default function StoryCard({ story }: { story: Story }) {
               ))}
             </div>
           ) : (
-            "▶"
+            <PlayIcon className="w-3.5 h-3.5 ml-0.5" />
           )}
         </button>
       </div>

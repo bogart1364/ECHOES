@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Story } from "@/types/story";
 import { useAudioPlayer } from "@/lib/AudioPlayerContext";
 import { useToast } from "@/lib/ToastContext";
+import { PlayIcon, PauseIcon } from "./Icons";
 
 export default function StoryPlayer({ story }: { story: Story }) {
   const { current, isPlaying, toggle } = useAudioPlayer();
@@ -31,7 +32,7 @@ export default function StoryPlayer({ story }: { story: Story }) {
         }
         className="w-14 h-14 rounded-full bg-amber text-[#181310] flex items-center justify-center flex-shrink-0 font-semibold text-lg"
       >
-        {isThisPlaying ? "❚❚" : "▶"}
+        {isThisPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
       </button>
       <button
         onClick={copyLink}

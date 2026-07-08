@@ -1,6 +1,7 @@
 "use client";
 
 import { useAudioPlayer } from "@/lib/AudioPlayerContext";
+import { PlayIcon, PauseIcon } from "./Icons";
 
 export default function MiniPlayer() {
   const { current, isPlaying, progress, toggle, seek, close } = useAudioPlayer();
@@ -15,7 +16,7 @@ export default function MiniPlayer() {
           className="w-10 h-10 rounded-full bg-amber text-[#181310] flex items-center justify-center flex-shrink-0 font-semibold"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
-          {isPlaying ? "❚❚" : "▶"}
+          {isPlaying ? <PauseIcon className="w-4 h-4" /> : <PlayIcon className="w-4 h-4 ml-0.5" />}
         </button>
 
         <div className="min-w-0 flex-1">

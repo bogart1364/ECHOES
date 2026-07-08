@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAllStories } from "@/lib/stories";
 import StoryGrid from "@/components/StoryGrid";
+import Footer from "@/components/Footer";
 
 export default async function HomePage() {
   const stories = await getAllStories();
@@ -43,6 +44,8 @@ export default async function HomePage() {
         </div>
         <StoryGrid stories={stories} />
       </section>
+
+      <Footer />
     </main>
   );
 }
