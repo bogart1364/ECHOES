@@ -21,7 +21,7 @@ export default async function StoryPage({ params }: { params: { id: string } }) 
 
       <div className="text-xs text-muted font-mono space-y-1 break-all">
         <p>
-          Stored forever:{" "}
+          Stored:{" "}
           <a className="underline" href={story.arweaveUri} target="_blank" rel="noreferrer">
             {story.arweaveUri}
           </a>

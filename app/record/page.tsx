@@ -9,8 +9,8 @@ export default function RecordPage() {
         </span>
         <h1 className="font-display text-2xl sm:text-3xl mb-3">Tell your story</h1>
         <p className="text-muted text-[15px] leading-relaxed">
-          Recorded locally in your browser. Cleaned up with ElevenLabs if you want. Stored on
-          Arweave forever and anchored on Solana the moment you publish.
+          Recorded locally in your browser. Cleaned up with ElevenLabs if you want. Stored
+          reliably and anchored on Solana the moment you publish.
         </p>
       </div>
       <WaveformRecorder />

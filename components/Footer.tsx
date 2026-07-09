@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const techStack = [
   { name: "Solana", note: "on-chain anchor" },
-  { name: "Arweave", note: "via Irys" },
+  { name: "Vercel Blob", note: "storage" },
   { name: "Privy", note: "auth" },
   { name: "ElevenLabs", note: "AI audio" },
   { name: "Next.js", note: "frontend" },

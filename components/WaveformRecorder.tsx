@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { buildStoryMintTransaction } from "@/lib/solana";
-import { uploadAudioToArweave, uploadImageToArweave } from "@/lib/irys";
+import { uploadAudio, uploadImage } from "@/lib/storage";
 import { describeWalletError, FriendlyError } from "@/lib/walletErrors";
 import { useToast } from "@/lib/ToastContext";
 
@@ -159,13 +159,13 @@ export default function WaveformRecorder() {
     setFriendlyError(null);
 
     try {
-      const arweaveUri = await uploadAudioToArweave(recordedBlobRef.current, wallet);
+      const arweaveUri = await uploadAudio(recordedBlobRef.current);
       setResultUri(arweaveUri);
 
       let imageUri: string | undefined;
       if (coverFile) {
         setStage("uploading-image");
-        imageUri = await uploadImageToArweave(coverFile, wallet);
+        imageUri = await uploadImage(coverFile);
       }
 
       setStage("minting");
@@ -275,8 +275,8 @@ export default function WaveformRecorder() {
                 <input type="file" accept="image/*" onChange={handleCoverChange} className="hidden" />
               </label>
               <p className="text-xs text-muted leading-relaxed">
-                Optional cover art — shown on the story card and player. Stored on Arweave
-                alongside the audio.
+                Optional cover art — shown on the story card and player, stored alongside the
+                audio.
               </p>
             </div>
           )}
@@ -302,12 +302,10 @@ export default function WaveformRecorder() {
             <p className="text-sm text-muted font-mono">Removing background noise…</p>
           )}
           {stage === "uploading-audio" && (
-            <p className="text-sm text-muted font-mono">
-              Uploading audio to Arweave — approve the funding transaction in your wallet…
-            </p>
+            <p className="text-sm text-muted font-mono">Uploading audio…</p>
           )}
           {stage === "uploading-image" && (
-            <p className="text-sm text-muted font-mono">Uploading cover image to Arweave…</p>
+            <p className="text-sm text-muted font-mono">Uploading cover image…</p>
           )}
           {stage === "minting" && (
             <p className="text-sm text-muted font-mono">
@@ -322,7 +320,7 @@ export default function WaveformRecorder() {
               <p className="text-green font-mono">Published.</p>
               {resultUri && (
                 <p className="text-muted break-all">
-                  Stored forever:{" "}
+                  Stored:{" "}
                   <a className="underline" href={resultUri} target="_blank" rel="noreferrer">
                     {resultUri}
                   </a>
