@@ -1,17 +1,18 @@
 import Link from "next/link";
+import { SolanaMark, VercelMark, PrivyMark, ElevenLabsMark, NextMark } from "./Icons";
 
 const techStack = [
-  { name: "Solana", note: "on-chain anchor" },
-  { name: "Vercel Blob", note: "storage" },
-  { name: "Privy", note: "auth" },
-  { name: "ElevenLabs", note: "AI audio" },
-  { name: "Next.js", note: "frontend" },
+  { name: "Solana", Icon: SolanaMark },
+  { name: "Vercel Blob", Icon: VercelMark },
+  { name: "Privy", Icon: PrivyMark },
+  { name: "ElevenLabs", Icon: ElevenLabsMark },
+  { name: "Next.js", Icon: NextMark },
 ];
 
 const socials = [
-  { label: "X", glyph: "𝕏" },
-  { label: "Telegram", glyph: "✈" },
-  { label: "LinkedIn", glyph: "in" },
+  { label: "X", glyph: "𝕏", href: "https://x.com/orinbase" },
+  { label: "Telegram", glyph: "✈", href: null },
+  { label: "LinkedIn", glyph: "in", href: "https://www.linkedin.com/in/ali-peirovi" },
 ];
 
 export default function Footer() {
@@ -26,15 +27,28 @@ export default function Footer() {
             The ownership layer for audio stories on Solana.
           </p>
           <div className="flex gap-2">
-            {socials.map((s) => (
-              <span
-                key={s.label}
-                title={`${s.label} — coming soon`}
-                className="w-9 h-9 rounded-full glass flex items-center justify-center text-sm text-muted cursor-default select-none"
-              >
-                {s.glyph}
-              </span>
-            ))}
+            {socials.map((s) =>
+              s.href ? (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={s.label}
+                  className="w-9 h-9 rounded-full glass flex items-center justify-center text-sm text-muted hover:text-bone transition"
+                >
+                  {s.glyph}
+                </a>
+              ) : (
+                <span
+                  key={s.label}
+                  title={`${s.label} — coming soon`}
+                  className="w-9 h-9 rounded-full glass flex items-center justify-center text-sm text-muted cursor-default select-none"
+                >
+                  {s.glyph}
+                </span>
+              )
+            )}
           </div>
         </div>
 
@@ -75,15 +89,17 @@ export default function Footer() {
 
         <div>
           <div className="text-xs text-muted uppercase tracking-wide mb-4">Built with</div>
-          <ul className="space-y-2.5">
+          <div className="flex flex-wrap gap-3">
             {techStack.map((t) => (
-              <li key={t.name} className="flex items-center gap-2 text-sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber to-violet flex-shrink-0" />
-                <span className="text-bone">{t.name}</span>
-                <span className="text-xs text-muted">— {t.note}</span>
-              </li>
+              <span
+                key={t.name}
+                title={t.name}
+                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-muted"
+              >
+                <t.Icon className="w-5 h-5" />
+              </span>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
 
