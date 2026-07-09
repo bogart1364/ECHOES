@@ -91,6 +91,9 @@ export default function Footer() {
         <p className="text-xs text-muted text-center">
           © {new Date().getFullYear()} Echoes — built for the Superteam front-end listing. Devnet demo.
         </p>
+        <p className="text-[11px] text-muted/60 text-center mt-2">
+          Demo audio courtesy of SoundHelix.
+        </p>
       </div>
     </footer>
   );
