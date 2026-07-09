@@ -24,7 +24,6 @@ body {
     inset 0 0 40px rgba(255, 255, 255, 0.02),
     0 8px 32px rgba(0, 0, 0, 0.35),
     0 1px 2px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
 }
 
 .glass::before {
@@ -39,6 +38,7 @@ body {
     rgba(255, 255, 255, 0) 45%
   );
   pointer-events: none;
+  z-index: 0;
 }
 
 .glass-strong {
@@ -52,7 +52,6 @@ body {
     inset 0 0 50px rgba(255, 255, 255, 0.03),
     0 12px 40px rgba(0, 0, 0, 0.45),
     0 2px 4px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
 }
 
 .glass-strong::before {
@@ -67,6 +66,16 @@ body {
     rgba(255, 255, 255, 0) 45%
   );
   pointer-events: none;
+  z-index: 0;
+}
+
+/* Direct children need to sit above the ::before highlight layer now that
+   we're not using overflow:hidden to stack things (overflow:hidden was
+   clipping dropdown menus like the wallet-adapter's, e.g. inside Nav). */
+.glass > *,
+.glass-strong > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ---- Ambient background waveform ---- */
