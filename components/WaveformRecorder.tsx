@@ -7,7 +7,17 @@ import { uploadAudioToArweave, uploadImageToArweave } from "@/lib/irys";
 import { describeWalletError, FriendlyError } from "@/lib/walletErrors";
 import { useToast } from "@/lib/ToastContext";
 
-type Stage = "idle" | "recording" | "review" | "cleaning" | "publishing" | "done" | "error";
+type Stage =
+  | "idle"
+  | "recording"
+  | "review"
+  | "cleaning"
+  | "uploading-audio"
+  | "uploading-image"
+  | "minting"
+  | "registering"
+  | "done"
+  | "error";
 
 export default function WaveformRecorder() {
   const [stage, setStage] = useState<Stage>("idle");
@@ -145,7 +155,7 @@ export default function WaveformRecorder() {
       return;
     }
 
-    setStage("publishing");
+    setStage("uploading-audio");
     setFriendlyError(null);
 
     try {
@@ -154,9 +164,11 @@ export default function WaveformRecorder() {
 
       let imageUri: string | undefined;
       if (coverFile) {
+        setStage("uploading-image");
         imageUri = await uploadImageToArweave(coverFile, wallet);
       }
 
+      setStage("minting");
       const tx = await buildStoryMintTransaction(connection, wallet.publicKey, {
         type: "echoes.story.mint",
         title,
@@ -169,7 +181,8 @@ export default function WaveformRecorder() {
       await connection.confirmTransaction(signature, "confirmed");
       setTxSig(signature);
 
-      await fetch("/api/stories", {
+      setStage("registering");
+      const registerRes = await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -182,10 +195,15 @@ export default function WaveformRecorder() {
           durationSeconds: seconds,
         }),
       });
+      if (!registerRes.ok) {
+        const detail = await registerRes.json().catch(() => ({}));
+        throw new Error(detail.error || "Failed to register the story in the marketplace.");
+      }
 
       push("Published! Your story is live.", "success");
       setStage("done");
     } catch (err) {
+      console.error("[publish] failed:", err);
       setFriendlyError(describeWalletError((err as Error).message));
       setStage("review");
     }
@@ -229,7 +247,13 @@ export default function WaveformRecorder() {
         </>
       )}
 
-      {(stage === "review" || stage === "cleaning" || stage === "publishing" || stage === "done") && (
+      {(stage === "review" ||
+        stage === "cleaning" ||
+        stage === "uploading-audio" ||
+        stage === "uploading-image" ||
+        stage === "minting" ||
+        stage === "registering" ||
+        stage === "done") && (
         <div className="space-y-5">
           <input
             value={title}
@@ -277,10 +301,21 @@ export default function WaveformRecorder() {
           {stage === "cleaning" && (
             <p className="text-sm text-muted font-mono">Removing background noise…</p>
           )}
-          {stage === "publishing" && (
+          {stage === "uploading-audio" && (
             <p className="text-sm text-muted font-mono">
-              Uploading to Arweave and signing the mint transaction — approve it in your wallet…
+              Uploading audio to Arweave — approve the funding transaction in your wallet…
             </p>
+          )}
+          {stage === "uploading-image" && (
+            <p className="text-sm text-muted font-mono">Uploading cover image to Arweave…</p>
+          )}
+          {stage === "minting" && (
+            <p className="text-sm text-muted font-mono">
+              Signing the on-chain mint transaction — approve it in your wallet…
+            </p>
+          )}
+          {stage === "registering" && (
+            <p className="text-sm text-muted font-mono">Adding your story to the marketplace…</p>
           )}
           {stage === "done" && (
             <div className="text-sm space-y-2">

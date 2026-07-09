@@ -16,25 +16,52 @@ export async function uploadToArweave(blob: Blob, wallet: WalletContextState): P
 
   const { WebIrys } = await import("@irys/sdk");
 
+  console.log("[irys] initializing WebIrys…", {
+    network: process.env.NEXT_PUBLIC_SOLANA_CLUSTER === "mainnet-beta" ? "mainnet" : "devnet",
+    rpcUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL,
+  });
+
   const irys = new WebIrys({
     network: process.env.NEXT_PUBLIC_SOLANA_CLUSTER === "mainnet-beta" ? "mainnet" : "devnet",
     token: "solana",
     wallet: { rpcUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL, name: "solana", provider: wallet },
   });
 
-  await irys.ready();
+  await withTimeout(irys.ready(), 20000, "Connecting to Irys timed out after 20s.");
+  console.log("[irys] ready. address:", irys.address);
 
   const buffer = Buffer.from(await blob.arrayBuffer());
 
-  // Fund just enough for this upload. On devnet this is effectively free.
-  const price = await irys.getPrice(buffer.length);
-  await irys.fund(price);
+  const price = await withTimeout(
+    irys.getPrice(buffer.length),
+    15000,
+    "Fetching Irys upload price timed out after 15s."
+  );
+  console.log("[irys] price for", buffer.length, "bytes:", price.toString());
 
-  const receipt = await irys.upload(buffer, {
-    tags: [{ name: "Content-Type", value: blob.type || "application/octet-stream" }],
-  });
+  await withTimeout(irys.fund(price), 60000, "Funding Irys timed out after 60s — check your wallet for a stuck approval.");
+  console.log("[irys] funded.");
+
+  const receipt = await withTimeout(
+    irys.upload(buffer, { tags: [{ name: "Content-Type", value: blob.type || "application/octet-stream" }] }),
+    45000,
+    "Uploading to Irys timed out after 45s. The file may be too large, or Irys's devnet node may be unresponsive."
+  );
+  console.log("[irys] uploaded. id:", receipt.id);
 
   return `https://gateway.irys.xyz/${receipt.id}`;
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timer!);
+  }
 }
 
 // Kept as a thin alias — existing callers referring to "audio" specifically
