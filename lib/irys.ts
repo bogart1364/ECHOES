@@ -39,7 +39,7 @@ export async function uploadToArweave(blob: Blob, wallet: WalletContextState): P
   );
   console.log("[irys] price for", buffer.length, "bytes:", price.toString());
 
-  await withTimeout(irys.fund(price), 60000, "Funding Irys timed out after 60s — check your wallet for a stuck approval.");
+  await fundWithRetry(irys, price);
   console.log("[irys] funded.");
 
   const receipt = await withTimeout(
@@ -61,6 +61,33 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, message: string):
     return await Promise.race([promise, timeout]);
   } finally {
     clearTimeout(timer!);
+  }
+}
+
+/**
+ * irys.fund() occasionally fails with "Confirmed tx not found" even though
+ * the funding transaction did land on-chain — the Irys node just checked
+ * before the public devnet RPC had propagated it. Retrying after a short
+ * wait almost always succeeds once the network catches up.
+ */
+async function fundWithRetry(irys: any, price: any, attempts = 3): Promise<void> {
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      await withTimeout(irys.fund(price), 60000, "Funding Irys timed out after 60s — check your wallet for a stuck approval.");
+      return;
+    } catch (err) {
+      const message = (err as Error).message || "";
+      const isPropagationDelay =
+        message.includes("Confirmed tx not found") || message.includes("failed to post funding");
+
+      console.warn(`[irys] fund attempt ${i}/${attempts} failed:`, message);
+
+      if (!isPropagationDelay || i === attempts) throw err;
+
+      const waitMs = 4000 * i;
+      console.log(`[irys] retrying fund in ${waitMs}ms (likely RPC propagation delay, not a real failure)…`);
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+    }
   }
 }
 

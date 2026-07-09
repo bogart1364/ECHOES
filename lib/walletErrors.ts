@@ -15,6 +15,18 @@ export interface FriendlyError {
 export function describeWalletError(raw: string): FriendlyError {
   const msg = raw.toLowerCase();
 
+  if (msg.includes("confirmed tx not found") || msg.includes("failed to post funding")) {
+    return {
+      title: "Solana's devnet network was slow to respond",
+      steps: [
+        "Your payment transaction likely went through fine — Irys just checked before the public devnet RPC had caught up.",
+        "This is a known devnet reliability issue, not something wrong with your wallet.",
+        "Wait about 15 seconds and try publishing again.",
+      ],
+      faucetHint: false,
+    };
+  }
+
   if (msg.includes("network") && (msg.includes("mismatch") || msg.includes("devnet") || msg.includes("mainnet"))) {
     return {
       title: "Your wallet is set to the wrong network",
