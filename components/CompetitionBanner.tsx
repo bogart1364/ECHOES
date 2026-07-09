@@ -7,7 +7,7 @@ export default function CompetitionBanner({ competition }: { competition: Compet
   );
 
   return (
-    <div className="glass rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-5 sm:gap-8">
+    <div className="glass rounded-[28px] p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-5 sm:gap-8">
       <div>
         <div className="text-xs text-violet font-mono uppercase tracking-wide mb-2">
           Sponsored by {competition.sponsor}

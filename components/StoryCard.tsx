@@ -19,7 +19,7 @@ export default function StoryCard({ story }: { story: Story }) {
   return (
     <Link
       href={`/story/${story.id}`}
-      className="glass rounded-2xl p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block"
+      className="glass rounded-[28px] p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block"
     >
       <div className="flex justify-between items-start mb-5">
         {story.imageUri ? (

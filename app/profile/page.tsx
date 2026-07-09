@@ -38,7 +38,7 @@ export default function ProfilePage() {
       </div>
 
       {!connected ? (
-        <div className="glass rounded-2xl p-9 flex flex-col items-start gap-4 max-w-md">
+        <div className="glass rounded-[28px] p-9 flex flex-col items-start gap-4 max-w-md">
           <p className="text-sm text-muted">Connect your wallet to see what you've published.</p>
           <WalletMultiButton
             style={{
@@ -53,7 +53,7 @@ export default function ProfilePage() {
       ) : stories === null ? (
         <p className="text-muted text-sm font-mono">Loading…</p>
       ) : mine.length === 0 ? (
-        <div className="glass rounded-2xl p-9 max-w-md">
+        <div className="glass rounded-[28px] p-9 max-w-md">
           <p className="text-sm text-muted mb-4">
             No stories yet from this wallet ({publicKey?.toBase58().slice(0, 4)}…
             {publicKey?.toBase58().slice(-4)}).

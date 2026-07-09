@@ -39,7 +39,7 @@ export default function TradeTicket({ initial }: { initial: Story }) {
   const up = story.change24h >= 0;
 
   return (
-    <div className="glass rounded-2xl p-6 sm:p-9 grid md:grid-cols-[1.3fr_1fr] gap-7 md:gap-9">
+    <div className="glass rounded-[28px] p-6 sm:p-9 grid md:grid-cols-[1.3fr_1fr] gap-7 md:gap-9">
       <div>
         <div className="text-xs text-muted uppercase tracking-wide mb-1">{story.title}</div>
         <div className={`font-mono text-2xl sm:text-3xl mb-4 ${up ? "text-green" : "text-[#E85D4D]"}`}>

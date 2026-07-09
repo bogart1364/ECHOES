@@ -10,7 +10,7 @@ export default function MiniPlayer() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-3 sm:px-6 sm:pb-6">
-      <div className="glass-strong max-w-2xl mx-auto rounded-2xl px-4 py-3 sm:px-5 sm:py-4 flex items-center gap-4 shadow-2xl">
+      <div className="glass-strong max-w-2xl mx-auto rounded-[28px] px-4 py-3 sm:px-5 sm:py-4 flex items-center gap-4 shadow-2xl">
         <button
           onClick={() => toggle(current)}
           className="w-10 h-10 rounded-full bg-amber text-[#181310] flex items-center justify-center flex-shrink-0 font-semibold"
