@@ -23,7 +23,21 @@ async function readStore(): Promise<Story[]> {
   }
 
   const text = await new Response(result.stream).text();
-  return JSON.parse(text) as Story[];
+  const stored = JSON.parse(text) as Story[];
+
+  // Sync in any seed stories added to the codebase since this store was
+  // first created (matched by id), so redeploying with new sample cards
+  // actually shows them without needing to reset the whole store.
+  const existingIds = new Set(stored.map((s) => s.id));
+  const newSeeds = (seedStories as Story[]).filter((s) => !existingIds.has(s.id));
+
+  if (newSeeds.length > 0) {
+    const merged = [...stored, ...newSeeds];
+    await writeStore(merged);
+    return merged;
+  }
+
+  return stored;
 }
 
 async function writeStore(stories: Story[]): Promise<void> {

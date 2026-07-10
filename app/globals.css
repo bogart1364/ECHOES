@@ -10,6 +10,14 @@ body {
   background: #14110f;
   color: #f2ecdd;
   overflow-x: hidden;
+  cursor: url('/cursor-rocket.svg') 16 2, auto;
+}
+
+a,
+button,
+[role="button"],
+label {
+  cursor: url('/cursor-rocket.svg') 16 2, pointer;
 }
 
 /* ---- Liquid Glass ---- */
