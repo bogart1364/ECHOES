@@ -3,6 +3,8 @@ import { getAllStories } from "@/lib/stories";
 import StoryGrid from "@/components/StoryGrid";
 import Footer from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const stories = await getAllStories();
 

@@ -3,6 +3,8 @@ import { getStoryById } from "@/lib/stories";
 import TradeTicket from "@/components/TradeTicket";
 import StoryPlayer from "@/components/StoryPlayer";
 
+export const dynamic = "force-dynamic";
+
 export default async function StoryPage({ params }: { params: { id: string } }) {
   const story = await getStoryById(params.id);
   if (!story) return notFound();

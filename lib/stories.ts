@@ -1,23 +1,53 @@
-import fs from "fs/promises";
-import path from "path";
+import { get, put } from "@vercel/blob";
 import { Story } from "@/types/story";
+import seedStories from "@/data/stories.json";
 
-const DATA_PATH = path.join(process.cwd(), "data", "stories.json");
+// The marketplace "database" is a single JSON blob in Vercel Blob storage.
+//
+// We originally read/wrote data/stories.json directly on disk, which works
+// in local dev but not in production: Vercel's serverless functions have a
+// read-only filesystem (aside from /tmp), so every write silently failed
+// there ("Failed to register the story in the marketplace"). Vercel Blob
+// (already wired up for audio/image uploads) gives us a small persistent
+// store without adding a new service.
+const STORE_PATHNAME = "store/stories.json";
+
+async function readStore(): Promise<Story[]> {
+  const result = await get(STORE_PATHNAME, { access: "public", useCache: false });
+
+  if (!result) {
+    // First run — seed the store from the bundled sample data.
+    const seeded = seedStories as Story[];
+    await writeStore(seeded);
+    return seeded;
+  }
+
+  const text = await new Response(result.stream).text();
+  return JSON.parse(text) as Story[];
+}
+
+async function writeStore(stories: Story[]): Promise<void> {
+  await put(STORE_PATHNAME, JSON.stringify(stories, null, 2), {
+    access: "public",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+  });
+}
 
 export async function getAllStories(): Promise<Story[]> {
-  const raw = await fs.readFile(DATA_PATH, "utf-8");
-  return JSON.parse(raw) as Story[];
+  return readStore();
 }
 
 export async function getStoryById(id: string): Promise<Story | undefined> {
-  const stories = await getAllStories();
+  const stories = await readStore();
   return stories.find((s) => s.id === id);
 }
 
 export async function addStory(story: Story): Promise<void> {
-  const stories = await getAllStories();
+  const stories = await readStore();
   stories.unshift(story);
-  await fs.writeFile(DATA_PATH, JSON.stringify(stories, null, 2), "utf-8");
+  await writeStore(stories);
 }
 
 /**
@@ -32,7 +62,7 @@ export async function simulateTrade(
   side: "buy" | "sell",
   usdcAmount: number
 ): Promise<Story> {
-  const stories = await getAllStories();
+  const stories = await readStore();
   const story = stories.find((s) => s.id === id);
   if (!story) throw new Error("Story not found");
 
@@ -45,6 +75,6 @@ export async function simulateTrade(
   story.marketCapUsd = +(story.marketCapUsd * (1 + direction * impact)).toFixed(2);
   if (side === "buy") story.holders += 1;
 
-  await fs.writeFile(DATA_PATH, JSON.stringify(stories, null, 2), "utf-8");
+  await writeStore(stories);
   return story;
 }
