@@ -73,8 +73,14 @@ export default function WaveformRecorder() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
+      // iOS WebKit (Safari and in-app browsers like Phantom's, which are
+      // WebKit-based too) has a known bug where feeding the same live
+      // MediaStream into both an AnalyserNode (for the waveform) and a
+      // MediaRecorder at once can silently corrupt the recorded output.
+      // Giving the analyser its own cloned track avoids that.
+      const analyserStream = stream.clone();
       const audioCtx = new AudioContext();
-      const source = audioCtx.createMediaStreamSource(stream);
+      const source = audioCtx.createMediaStreamSource(analyserStream);
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 128;
       source.connect(analyser);
@@ -88,9 +94,25 @@ export default function WaveformRecorder() {
       chunksRef.current = [];
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       recorder.onstop = () => {
-        recordedBlobRef.current = new Blob(chunksRef.current, { type: mimeTypeRef.current });
-        setStage("review");
+        const blob = new Blob(chunksRef.current, { type: mimeTypeRef.current });
+        recordedBlobRef.current = blob;
         stream.getTracks().forEach((t) => t.stop());
+        analyserStream.getTracks().forEach((t) => t.stop());
+
+        if (blob.size < 800) {
+          setFriendlyError({
+            title: "That recording looks empty",
+            steps: [
+              "The audio file came out far too small to contain real sound.",
+              "This can happen occasionally on some phone browsers — try recording again.",
+            ],
+            faucetHint: false,
+          });
+          setStage("idle");
+          return;
+        }
+
+        setStage("review");
       };
 
       recorder.start();
