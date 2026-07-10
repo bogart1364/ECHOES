@@ -42,10 +42,11 @@ export default function TradeTicket({ initial }: { initial: Story }) {
     <div className="glass rounded-[28px] p-6 sm:p-9 grid md:grid-cols-[1.3fr_1fr] gap-7 md:gap-9">
       <div>
         <div className="text-xs text-muted uppercase tracking-wide mb-1">{story.title}</div>
-        <div className={`font-mono text-2xl sm:text-3xl mb-4 ${up ? "text-green" : "text-[#E85D4D]"}`}>
+        <div className={`font-mono text-2xl sm:text-3xl mb-1 ${up ? "text-green" : "text-[#E85D4D]"}`}>
           {up ? "+" : ""}
           {story.change24h.toFixed(1)}%
         </div>
+        <PriceChart history={story.priceHistory || []} up={up} />
         <Row label="Price" value={`$${story.priceUsd.toFixed(4)}`} />
         <Row label="24h volume" value={`$${story.volume24hUsd.toLocaleString()}`} />
         <Row label="Market cap" value={`$${story.marketCapUsd.toLocaleString()}`} />
@@ -93,6 +94,35 @@ export default function TradeTicket({ initial }: { initial: Story }) {
         </p>
       </div>
     </div>
+  );
+}
+
+function PriceChart({ history, up }: { history: number[]; up: boolean }) {
+  if (history.length < 2) {
+    return <p className="text-xs text-muted font-mono py-6">Not enough trades yet for a chart.</p>;
+  }
+
+  const min = Math.min(...history);
+  const max = Math.max(...history);
+  const range = max - min || max * 0.1 || 1;
+  const w = 400;
+  const h = 70;
+  const pad = 4;
+
+  const points = history
+    .map((v, i) => {
+      const x = (i / (history.length - 1)) * w;
+      const y = pad + (1 - (v - min) / range) * (h - pad * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  const color = up ? "#6FCF97" : "#E85D4D";
+
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full h-[70px] my-5">
+      <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
   );
 }
 

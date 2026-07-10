@@ -13,6 +13,7 @@ export interface Story {
   holders: number;
   volume24hUsd: number;
   marketCapUsd: number;
+  priceHistory?: number[]; // recent price points, oldest first, for the trade chart
 }
 
 export interface Competition {

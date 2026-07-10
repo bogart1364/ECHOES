@@ -89,6 +89,8 @@ export async function simulateTrade(
   story.marketCapUsd = +(story.marketCapUsd * (1 + direction * impact)).toFixed(2);
   if (side === "buy") story.holders += 1;
 
+  story.priceHistory = [...(story.priceHistory || []), story.priceUsd].slice(-30);
+
   await writeStore(stories);
   return story;
 }

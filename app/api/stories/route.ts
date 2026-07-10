@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllStories, addStory } from "@/lib/stories";
+import { logActivity } from "@/lib/activity";
 import { Story } from "@/types/story";
 
 export async function GET() {
@@ -37,10 +38,12 @@ export async function POST(req: NextRequest) {
     holders: 1,
     volume24hUsd: 0,
     marketCapUsd: 100,
+    priceHistory: [0.01],
   };
 
   try {
     await addStory(story);
+    await logActivity({ storyId: story.id, storyTitle: story.title, side: "publish" });
     return NextResponse.json(story, { status: 201 });
   } catch (err) {
     console.error("[api/stories] POST failed:", err);

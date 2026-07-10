@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { simulateTrade } from "@/lib/stories";
+import { logActivity } from "@/lib/activity";
 
 // Despite the file name matching the mint flow conceptually, this route
 // handles post-mint trading (buy/sell), kept separate from /api/stories
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const updated = await simulateTrade(id, side, usdcAmount);
+    await logActivity({ storyId: updated.id, storyTitle: updated.title, side, usdcAmount });
     return NextResponse.json(updated);
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 404 });
