@@ -36,6 +36,23 @@ export default function WaveformRecorder() {
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recordedBlobRef = useRef<Blob | null>(null);
+  const mimeTypeRef = useRef<string>("audio/webm");
+
+  function pickSupportedMimeType(): string {
+    const candidates = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/mp4;codecs=mp4a.40.2",
+      "audio/ogg;codecs=opus",
+    ];
+    for (const type of candidates) {
+      if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported?.(type)) {
+        return type;
+      }
+    }
+    return ""; // let the browser pick its own default if none of the above match
+  }
 
   const wallet = useWallet();
   const { connection } = useConnection();
@@ -63,11 +80,15 @@ export default function WaveformRecorder() {
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      const recorder = new MediaRecorder(stream);
+      const recorder = new MediaRecorder(
+        stream,
+        pickSupportedMimeType() ? { mimeType: pickSupportedMimeType() } : undefined
+      );
+      mimeTypeRef.current = recorder.mimeType || "audio/webm";
       chunksRef.current = [];
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       recorder.onstop = () => {
-        recordedBlobRef.current = new Blob(chunksRef.current, { type: "audio/webm" });
+        recordedBlobRef.current = new Blob(chunksRef.current, { type: mimeTypeRef.current });
         setStage("review");
         stream.getTracks().forEach((t) => t.stop());
       };
@@ -117,7 +138,8 @@ export default function WaveformRecorder() {
     setFriendlyError(null);
     try {
       const form = new FormData();
-      form.append("audio", recordedBlobRef.current, "recording.webm");
+      const ext = mimeTypeRef.current.includes("mp4") ? "mp4" : mimeTypeRef.current.includes("ogg") ? "ogg" : "webm";
+      form.append("audio", recordedBlobRef.current, `recording.${ext}`);
       const res = await fetch("/api/elevenlabs/enhance", { method: "POST", body: form });
       if (!res.ok) {
         const detail = await res.json().catch(() => ({}));

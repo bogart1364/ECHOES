@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     const blob = await put(filename, file, {
       access: "public",
       addRandomSuffix: true,
+      contentType: file.type || undefined,
     });
     return NextResponse.json({ url: blob.url });
   } catch (err) {

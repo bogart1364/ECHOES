@@ -25,5 +25,8 @@ export async function uploadFile(blob: Blob, filename: string): Promise<string> 
   return url as string;
 }
 
-export const uploadAudio = (blob: Blob) => uploadFile(blob, `audio-${Date.now()}.webm`);
+export const uploadAudio = (blob: Blob) => {
+  const ext = blob.type.includes("mp4") ? "m4a" : blob.type.includes("ogg") ? "ogg" : "webm";
+  return uploadFile(blob, `audio-${Date.now()}.${ext}`);
+};
 export const uploadImage = (file: File) => uploadFile(file, `cover-${Date.now()}-${file.name}`);
