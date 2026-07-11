@@ -12,9 +12,38 @@ const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", wei
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", weight: ["400", "500", "600"] });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400", "500"] });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://echoes-drab.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Echoes — own your voice",
-  description: "Record, tokenize, and trade audio stories on Solana.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Echoes — own your voice",
+    template: "%s — Echoes",
+  },
+  description:
+    "Echoes is the ownership layer for audio stories on Solana. Record your story, tokenize it, and earn from every trade — permanently.",
+  keywords: [
+    "audio stories",
+    "Solana",
+    "Web3 audio",
+    "voice NFT",
+    "tokenized audio",
+    "podcast tokenization",
+    "on-chain storytelling",
+  ],
+  openGraph: {
+    title: "Echoes — own your voice",
+    description:
+      "Record a story, mint it on-chain, and earn every time it trades — reliably stored, always yours.",
+    siteName: "Echoes",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Echoes — own your voice",
+    description:
+      "Record a story, mint it on-chain, and earn every time it trades — reliably stored, always yours.",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

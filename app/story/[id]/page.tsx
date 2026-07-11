@@ -1,9 +1,35 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getStoryById } from "@/lib/stories";
 import TradeTicket from "@/components/TradeTicket";
 import StoryPlayer from "@/components/StoryPlayer";
+import FollowButton from "@/components/FollowButton";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const story = await getStoryById(params.id);
+  if (!story) return { title: "Story not found" };
+
+  const description = `A story by ${story.authorHandle} on Echoes — the ownership layer for audio stories on Solana.`;
+
+  return {
+    title: story.title,
+    description,
+    openGraph: {
+      title: story.title,
+      description,
+      images: story.imageUri ? [{ url: story.imageUri }] : undefined,
+      type: "music.song",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: story.title,
+      description,
+      images: story.imageUri ? [story.imageUri] : undefined,
+    },
+  };
+}
 
 export default async function StoryPage({ params }: { params: { id: string } }) {
   const story = await getStoryById(params.id);
@@ -16,7 +42,10 @@ export default async function StoryPage({ params }: { params: { id: string } }) 
           by {story.authorHandle}
         </span>
         <h1 className="font-display text-3xl sm:text-4xl mb-6">{story.title}</h1>
-        <StoryPlayer story={story} />
+        <div className="flex flex-wrap items-center gap-3 mb-2">
+          <StoryPlayer story={story} />
+          <FollowButton creatorWallet={story.authorWallet} creatorHandle={story.authorHandle} />
+        </div>
       </div>
 
       <TradeTicket initial={story} />

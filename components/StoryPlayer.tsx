@@ -1,19 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Story } from "@/types/story";
 import { useAudioPlayer } from "@/lib/AudioPlayerContext";
-import { useToast } from "@/lib/ToastContext";
 import { PlayIcon, PauseIcon } from "./Icons";
+import ShareMenu from "./ShareMenu";
 
 export default function StoryPlayer({ story }: { story: Story }) {
   const { current, isPlaying, toggle } = useAudioPlayer();
-  const { push } = useToast();
   const isThisPlaying = current?.id === story.id && isPlaying;
-
-  function copyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => push("Link copied.", "success"));
-  }
 
   return (
     <div className="flex items-center gap-4">
@@ -34,12 +28,10 @@ export default function StoryPlayer({ story }: { story: Story }) {
       >
         {isThisPlaying ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5 ml-0.5" />}
       </button>
-      <button
-        onClick={copyLink}
-        className="text-sm border border-line rounded-full px-4 py-2.5 text-muted hover:text-bone transition"
-      >
-        Share
-      </button>
+      <ShareMenu
+        url={typeof window !== "undefined" ? window.location.href : ""}
+        title={story.title}
+      />
       </div>
     </div>
   );
