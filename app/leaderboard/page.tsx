@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getAllStories } from "@/lib/stories";
 import { getRecentActivity } from "@/lib/activity";
 
@@ -47,7 +48,12 @@ export default async function LeaderboardPage() {
                   <span className="font-mono text-xs text-muted w-4 flex-shrink-0">{i + 1}</span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm truncate">{s.title}</p>
-                    <p className="text-xs text-muted truncate">{s.authorHandle}</p>
+                    <Link
+                      href={`/creator/${s.authorWallet}`}
+                      className="text-xs text-muted hover:text-amber transition truncate block w-fit"
+                    >
+                      {s.authorHandle}
+                    </Link>
                   </div>
                   <span className={`font-mono text-sm flex-shrink-0 ${up ? "text-green" : "text-[#E85D4D]"}`}>
                     {up ? "+" : ""}

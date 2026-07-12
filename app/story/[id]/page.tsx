@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getStoryById } from "@/lib/stories";
 import TradeTicket from "@/components/TradeTicket";
 import StoryPlayer from "@/components/StoryPlayer";
@@ -38,9 +39,12 @@ export default async function StoryPage({ params }: { params: { id: string } }) 
   return (
     <main className="px-4 sm:px-6 md:px-12 py-16 sm:py-20 max-w-5xl mx-auto space-y-8 sm:space-y-10">
       <div>
-        <span className="font-mono text-xs uppercase tracking-wide text-muted block mb-3">
+        <Link
+          href={`/creator/${story.authorWallet}`}
+          className="font-mono text-xs uppercase tracking-wide text-muted hover:text-amber transition block mb-3 w-fit"
+        >
           by {story.authorHandle}
-        </span>
+        </Link>
         <h1 className="font-display text-3xl sm:text-4xl mb-6">{story.title}</h1>
         <div className="flex flex-wrap items-center gap-3 mb-2">
           <StoryPlayer story={story} />

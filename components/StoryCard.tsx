@@ -1,25 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Story } from "@/types/story";
 import { useAudioPlayer } from "@/lib/AudioPlayerContext";
 import { PlayIcon, PauseIcon } from "./Icons";
 
 export default function StoryCard({ story }: { story: Story }) {
   const { current, isPlaying, toggle } = useAudioPlayer();
+  const router = useRouter();
   const isThisPlaying = current?.id === story.id && isPlaying;
 
   function handlePlay(e: React.MouseEvent) {
-    e.preventDefault();
+    e.stopPropagation();
     toggle({ id: story.id, title: story.title, authorHandle: story.authorHandle, src: story.arweaveUri });
   }
 
   const up = story.change24h >= 0;
 
   return (
-    <Link
-      href={`/story/${story.id}`}
-      className="glass rounded-[28px] p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block"
+    <div
+      onClick={() => router.push(`/story/${story.id}`)}
+      className="glass rounded-[28px] p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block cursor-pointer"
     >
       <div className="flex justify-between items-start mb-5">
         {story.imageUri ? (
@@ -49,7 +51,13 @@ export default function StoryCard({ story }: { story: Story }) {
         </button>
       </div>
       <h3 className="font-display text-lg mb-1 truncate">{story.title}</h3>
-      <p className="text-xs text-muted mb-4">by {story.authorHandle}</p>
+      <Link
+        href={`/creator/${story.authorWallet}`}
+        onClick={(e) => e.stopPropagation()}
+        className="text-xs text-muted mb-4 block hover:text-amber transition w-fit"
+      >
+        by {story.authorHandle}
+      </Link>
       <div className="flex justify-between items-center pt-3 border-t border-line">
         <span className={`font-mono text-sm ${up ? "text-green" : "text-[#E85D4D]"}`}>
           ${story.priceUsd.toFixed(3)} {up ? "↑" : "↓"}
@@ -57,6 +65,6 @@ export default function StoryCard({ story }: { story: Story }) {
         </span>
         <span className="text-xs text-muted">{story.holders} holders</span>
       </div>
-    </Link>
+    </div>
   );
 }
