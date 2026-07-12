@@ -37,6 +37,16 @@ export async function getFollowState(
   return { count, following };
 }
 
+export async function getFollowingList(follower: string): Promise<string[]> {
+  const all = await readFollows();
+  return all.filter((f) => f.follower === follower).map((f) => f.creator);
+}
+
+export async function getFollowerList(creator: string): Promise<string[]> {
+  const all = await readFollows();
+  return all.filter((f) => f.creator === creator).map((f) => f.follower);
+}
+
 export async function setFollow(
   follower: string,
   creator: string,

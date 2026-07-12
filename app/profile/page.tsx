@@ -5,6 +5,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Story } from "@/types/story";
 import StoryCard from "@/components/StoryCard";
+import FollowLists from "@/components/FollowLists";
 
 export default function ProfilePage() {
   const { connected, publicKey } = useWallet();
@@ -50,39 +51,45 @@ export default function ProfilePage() {
             }}
           />
         </div>
-      ) : stories === null ? (
-        <p className="text-muted text-sm font-mono">Loading…</p>
-      ) : mine.length === 0 ? (
-        <div className="glass rounded-[28px] p-9 max-w-md">
-          <p className="text-sm text-muted mb-4">
-            No stories yet from this wallet ({publicKey?.toBase58().slice(0, 4)}…
-            {publicKey?.toBase58().slice(-4)}).
-          </p>
-          <a href="/record" className="text-sm text-amber underline">
-            Record your first one →
-          </a>
-        </div>
       ) : (
         <>
-          <div className="flex gap-6 mb-8 text-sm">
-            <div>
-              <div className="font-mono text-xl">{mine.length}</div>
-              <div className="text-muted text-xs">stories</div>
+          <FollowLists wallet={publicKey!.toBase58()} />
+
+          {stories === null ? (
+            <p className="text-muted text-sm font-mono">Loading…</p>
+          ) : mine.length === 0 ? (
+            <div className="glass rounded-[28px] p-9 max-w-md">
+              <p className="text-sm text-muted mb-4">
+                No stories yet from this wallet ({publicKey?.toBase58().slice(0, 4)}…
+                {publicKey?.toBase58().slice(-4)}).
+              </p>
+              <a href="/record" className="text-sm text-amber underline">
+                Record your first one →
+              </a>
             </div>
-            <div>
-              <div className="font-mono text-xl">{totalHolders}</div>
-              <div className="text-muted text-xs">total holders</div>
-            </div>
-            <div>
-              <div className="font-mono text-xl">${totalVolume.toLocaleString()}</div>
-              <div className="text-muted text-xs">24h volume</div>
-            </div>
-          </div>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-            {mine.map((s) => (
-              <StoryCard key={s.id} story={s} />
-            ))}
-          </div>
+          ) : (
+            <>
+              <div className="flex gap-6 mb-8 text-sm">
+                <div>
+                  <div className="font-mono text-xl">{mine.length}</div>
+                  <div className="text-muted text-xs">stories</div>
+                </div>
+                <div>
+                  <div className="font-mono text-xl">{totalHolders}</div>
+                  <div className="text-muted text-xs">total holders</div>
+                </div>
+                <div>
+                  <div className="font-mono text-xl">${totalVolume.toLocaleString()}</div>
+                  <div className="text-muted text-xs">24h volume</div>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
+                {mine.map((s) => (
+                  <StoryCard key={s.id} story={s} />
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
     </main>
