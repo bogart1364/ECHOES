@@ -4,7 +4,7 @@ import { getAllStories } from "@/lib/stories";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://echoes-drab.vercel.app";
 
-  const staticRoutes = ["", "/record", "/competitions", "/leaderboard"].map((path) => ({
+  const staticRoutes = ["", "/record", "/competitions", "/signal"].map((path) => ({
     url: `${base}${path}`,
     lastModified: new Date(),
   }));

@@ -39,8 +39,8 @@ export default function Nav() {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-3 ml-auto">
-          <Link href="/leaderboard" className="text-sm text-muted hover:text-bone transition">
-            Leaderboard
+          <Link href="/signal" className="text-sm text-muted hover:text-bone transition">
+            Signal
           </Link>
           <Link href="/competitions" className="text-sm text-muted hover:text-bone transition">
             Competitions
@@ -97,8 +97,8 @@ export default function Nav() {
           <div className="flex items-center gap-1.5 text-[11px] font-mono text-muted">
             <span className="w-1.5 h-1.5 rounded-full bg-green" /> devnet — free to test
           </div>
-          <Link href="/leaderboard" className="text-sm text-muted" onClick={() => setMenuOpen(false)}>
-            Leaderboard
+          <Link href="/signal" className="text-sm text-muted" onClick={() => setMenuOpen(false)}>
+            Signal
           </Link>
           <Link href="/competitions" className="text-sm text-muted" onClick={() => setMenuOpen(false)}>
             Competitions

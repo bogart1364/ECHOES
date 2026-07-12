@@ -20,7 +20,7 @@ const activityCopy: Record<string, (a: { usdcAmount?: number }) => string> = {
   sell: (a) => `sold $${a.usdcAmount?.toFixed(2)} of`,
 };
 
-export default async function LeaderboardPage() {
+export default async function SignalPage() {
   const [stories, activity] = await Promise.all([getAllStories(), getRecentActivity(20)]);
 
   const trending = [...stories].sort((a, b) => b.change24h - a.change24h).slice(0, 10);
@@ -29,7 +29,7 @@ export default async function LeaderboardPage() {
     <main className="px-4 sm:px-6 md:px-12 py-16 sm:py-20 max-w-5xl mx-auto">
       <div className="max-w-xl mb-11">
         <span className="font-mono text-xs uppercase tracking-wide text-amber block mb-3">
-          Leaderboard
+          Signal
         </span>
         <h1 className="font-display text-2xl sm:text-3xl mb-3">What's moving right now</h1>
         <p className="text-muted text-[15px] leading-relaxed">
