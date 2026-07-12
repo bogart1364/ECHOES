@@ -38,7 +38,7 @@ export default async function LeaderboardPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="glass rounded-[28px] p-6 sm:p-7">
+        <div className="glass rounded-[18px] p-6 sm:p-7">
           <h2 className="text-xs text-muted uppercase tracking-wide mb-5">Trending stories</h2>
           <ul className="space-y-1">
             {trending.map((s, i) => {
@@ -65,7 +65,7 @@ export default async function LeaderboardPage() {
           </ul>
         </div>
 
-        <div className="glass rounded-[28px] p-6 sm:p-7">
+        <div className="glass rounded-[18px] p-6 sm:p-7">
           <h2 className="text-xs text-muted uppercase tracking-wide mb-5">Recent activity</h2>
           {activity.length === 0 ? (
             <p className="text-sm text-muted">Nothing yet — be the first to publish or trade.</p>

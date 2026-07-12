@@ -21,7 +21,7 @@ export default function StoryCard({ story }: { story: Story }) {
   return (
     <div
       onClick={() => router.push(`/story/${story.id}`)}
-      className="glass rounded-[28px] p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block cursor-pointer"
+      className="glass rounded-[18px] p-5 sm:p-6 hover:bg-cardHover/60 hover:-translate-y-1 transition block cursor-pointer"
     >
       <div className="flex justify-between items-start mb-5">
         {story.imageUri ? (

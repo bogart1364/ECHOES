@@ -168,7 +168,7 @@ export default function NarrateWithAI() {
   }
 
   return (
-    <div className="glass rounded-[28px] p-6 sm:p-9 max-w-xl">
+    <div className="glass rounded-[18px] p-6 sm:p-9 max-w-xl">
       {stage === "writing" && (
         <div className="space-y-4">
           <textarea
